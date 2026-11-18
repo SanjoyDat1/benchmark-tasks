@@ -2,19 +2,18 @@
 
 One task file, `replace_faucet_cartridge.py`, for the `yam_arena` embodiment of
 [yam-isaac-lab-arena](https://github.com/kairosiann/yam-isaac-lab-arena) on Dream Labs' station scene.
-A single-handle bathroom faucet with its handle off stands on a piece of vanity top, its hot supply on the left
+A single-handle bathroom faucet stands on a piece of vanity top with its handle off, its hot supply on the left
 and cold on the right. Its handle has gone stiff and won't open fully. The robot checks the fault, swaps the worn
 1225-type cartridge for a new one the way the manufacturer's sheet says, and tests its work:
-1. **Test before.** Lift the old stem (it binds about 2 mm up, short of its 6 mm full-on) and try a turn (it
-   binds too). Push it back down.
+1. **Test before.** Lift the old stem: it binds about 2 mm up, short of its 6 mm full-on. Try a turn: it binds too.
+   Push it back down.
 2. Slide the copper retainer clip out.
-3. Pull the old cartridge out by its stem.
+3. Pull the old cartridge out by its stem, and put it in the parts tray.
 4. Push the new one fully home with its tabs in the valve body's cut-outs.
 5. Slide the clip back in. It only goes when the cartridge is home, to within about half a millimetre.
 6. Set the stem so that, once the handle is refitted, swinging it to the left opens the hot supply.
 7. **Test after,** with the clip home. Lift the new stem to full-on, swing it to the full-hot end and to the
    full-cold end, return it to the centre and push it down (off). The cartridge must stay put under its clip.
-8. Put the old cartridge in the parts tray (any time after step 3).
 
 ## Requirements
 
@@ -55,32 +54,31 @@ This follows the real 1225:
 - **The notch.** Moen's support articles say the notch on the stem sets where hot and cold are
   ([1225 Cartridge: Kitchen Faucet](https://solutions.moen.com/Article_Library/1225_Cartridge:_Kitchen_Faucet),
   [1225 Cartridge: Moentrol with Integrated Transfer Valve](https://solutions.moen.com/Article_Library/1225_Cartridge:_Moentrol_with_Integrated_Transfer_Valve)).
-  The stem turns a full circle, which is how an installer swaps hot and cold when the supplies are piped backwards,
-  so a stem set wrong gives hot on the right.
+  The stem turns a full circle, so a stem set wrong gives hot on the right.
 - **Rotation stops.** The cartridge has none. Where a trim limits the handle's swing, the stops are in the handle
-  or its stop tube; that is reported for Moen's shower valves and was not checked for this faucet.
-- **Not checked:** the piston's port layout and the quarter-turn swing are modelled, not taken from a drawing,
-  since Moen publishes none.
+  or its stop tube (reported for Moen's shower valves, not checked for this faucet).
+- **Not checked:** the piston's port layout and the quarter-turn swing are modelled; Moen publishes no drawing. The
+  swing is consistent with Moen's bathroom-cartridge guide, which gives a 1225 faucet's top-mount handle 180 degrees
+  of rotation in all ([Faucet Cartridges: Bathroom](https://solutions.moen.com/Article_Library/Faucet_Cartridges:_Bathroom),
+  read 2026-11-16).
 
-The model has the same parts. The piston, its port and the handle's swing are a model of the internals, not
-taken from a drawing:
-- **Valve body:** an inlet port through its wall low down on each side: hot on the left as a user facing the
-  faucet sees it, cold on the right. Each takes a brass supply shank with a red or a blue nut.
-- **Cartridge shell:** an inlet window on each side, perpendicular to its tabs. The tabs key the shell into the
-  body front-back, so its windows always face the inlets.
-- **Stem:** it turns in the shell against its O-rings' drag (a damped joint) and slides up toward on. A small
-  spring detent ball in the shell's top presses on it, so it stays where it is left (on or off). Inside, it ends
-  in a brass piston with one port, on the notch's side. At full-on (6 mm up) the port stands level with the inlets.
-- **The fault:** the old stem is stiff. Its joint stops it 2 mm up and 15 degrees either way, so the faucet won't
-  open fully. The new stem lifts its full 6 mm and turns freely.
-- **Setting:** with the stem's notch to the front, the port faces the front, between the inlets. A left swing of
-  the handle (modelled as a quarter turn, clockwise seen from above) brings the port onto the hot inlet. Set with
-  the notch to the back, the same swing opens the cold one.
+The model has the same parts; the piston, its port and the swing are a model of the internals:
+- **Valve body:** an inlet port low down on each side, hot on the left as a user facing the faucet sees it, cold on
+  the right, each with a brass supply shank and a red or a blue nut.
+- **Cartridge shell:** an inlet window on each side, perpendicular to its tabs. The tabs key it front-back, so its
+  windows always face the inlets.
+- **Stem:** it turns against its O-rings' drag (a damped joint) and slides up toward on; a spring detent ball holds
+  it where it is left. It ends in a brass piston with one port, on the notch's side, level with the inlets at
+  full-on (6 mm up).
+- **The fault:** the old stem's joint stops it 2 mm up and 15 degrees either way, so the faucet won't open fully, as
+  a stem bound by scale would. The new stem lifts its full 6 mm and turns freely.
+- **Setting:** with the notch to the front, the port faces the front, between the inlets, and a left swing of the
+  handle (a quarter turn, clockwise seen from above) brings it onto the hot inlet. Set with the notch to the back,
+  the same swing opens the cold one.
 
-So the score's rule is Moen's: the new stem's notch faces the front, within 20 degrees. The code computes it from
-the stem's turn as the port's angle after the modelled swing, against the hot inlet's direction. Because the port
-is on the notch's side, that is the same rule. No water flows: the ports, the piston and the windows have no
-effect in the simulation beyond their geometry, and the tests are mechanical: how far a stem lifts and turns.
+So the score's rule is Moen's: the new stem's notch faces the front within 20 degrees. The code computes it as the
+port's angle after the modelled swing against the hot inlet's direction, which is the same rule. No water flows:
+the tests are mechanical, how far a stem lifts and turns.
 
 ## Score
 
@@ -178,249 +176,313 @@ plumber comes back. So neither outranks the other.
 windows face the inlets either way. The clip may go back in from the front or from the back, as the manufacturer
 allows.
 
-**In a real trial:** use an old cartridge that is stiff but not seized, and pull the clip with pliers if your
-gripper can't. Push the clip back home rather than pinching it in. With its legs in both walls' slots it can turn
-only about 1.6 degrees, so a clip held at the wrist's angle can wedge. To score:
-- read the tests from the video: the old stem lifted before the clip moved; the new one lifted fully and swung
-  both ways, then pushed down;
-- read "home" off the tabs, which must be flush with the rim;
-- check "clipped" by eye: the legs pass right across through both slots;
-- after the trial, refit the handle, turn the water on at the stops, open the handle fully, swing it left and feel
-  for hot water;
-- read hands clear and still from the video.
+**In a real trial** the same rules are read dry with simple tools ("Real trial"). Push the clip back home rather than
+pinching it in: in both slots it can turn only about 1.6 degrees, so a clip held at the wrist's angle can wedge.
+
+## Real trial
+
+No water reaches the robot rig: the score is read dry, hot on the left from the notch as in the simulation, and
+water is used only at a separate test station.
+
+**The valve.** No Moen faucet made today takes the 1225: the current Chateau L4621 lavatory faucet takes the
+nut-held 1255 (Moen parts sheet, Rev. 4/16).
+
+Moen's M-PACT Moentrol tub/shower valve 3520 (1/2 in sweat), sold new, does take the 1225:
+- Its parts sheet (Rev. 6/16) lists "Replacement Cartridge 1200 or 1225" and "Retainer Clip 883". The Chateau 4621
+  lavatory faucet's sheet (Rev. 1/09) lists the same clip.
+- Its spec sheet says "1225 cartridge design".
+
+So the kit uses that valve body:
+- It lies on its back on the board, cartridge up, with its shower outlet away from the robot and its tub outlet
+  toward it; its hot inlet is then on the left.
+- Moen's Moentrol rule, "Rotate the stem of the cartridge (#6) so the small notch is facing down"
+  ([1225 Cartridge: Single Handle Shower-Moentrol Valve](https://solutions.moen.com/Article_Library/1225_Cartridge:_Single_Handle_Shower-Moentrol_Valve),
+  read 2026-11-16), then means the notch toward the robot: the scene's rule.
+- The cartridge, its bore, the cut-outs at 12 and 6 o'clock and the copper clip are the real parts. The valve has a
+  tub outlet where the scene has a spout.
+- Clip side: Moen's Moentrol article says to "Lift the tab at the top of the U-shaped" clip; with the valve on its
+  back that tab points away from the robot. If the 3520's clip won't go in from the robot's side, start with its tab
+  at the back: the score accepts the clip from either side ("Either way round", above).
+
+A pre-2009 Moen lavatory faucet that takes the 1225 (Chateau 4621 or 4601, parts sheets Rev. 1/09 and 2/03) may be
+used instead, raised on blocks for its shanks.
+
+**Kit.** Prices were read on 2026-11-16; "listing" means a retailer's search listing. The total is about $450,
+estimates included, with no item over $130 (a plumber sweating the stubs saves the torch kit):
+- **Valve:** Moen 3520 ($126.39, Home Depot listing), with:
+  - two 3 in stubs of 1/2 in copper tube, sweated into the inlets once, by a plumber or with a torch kit (about $45,
+    estimate);
+  - two 1/2 in pipe straps holding the stubs to the board;
+  - the board: the 22 x 20 cm, 12 mm white solid-surface or plywood vanity top, stuck to the rig's table with
+    heavy-duty double-sided tape (about $10, estimate). A 50 N pull up on the valve must not lift it.
+- **Parts:**
+  - three genuine Moen 1225 ($26.49 each, Zoro listing): new, made stiff, spare;
+  - two spare 96365 clips ($9.80 each, SupplyHouse listing);
+  - Moen 99915 silicone grease;
+  - a cup about 32 mm across and 20 mm deep;
+  - a tray 11 cm square inside with 3 cm walls;
+  - a lever handle about 80 mm long, as the scene's reference.
+- **Tools:** a 50 kg luggage scale ($9.99, Walmart listing), a 6 in digital caliper (Harbor Freight 63586,
+  $11.99), an 8 in mill file and 320 grit emery cloth ($5.99 each, listings), cloth gaffer tape ($28.50, AndyMark
+  listing), a fine paint marker ($2.53, Staples listing), and a phone on a tripod (about $15, estimate).
+- **Test station** (about $70, estimate): a 12 qt dish pan ($8.18, Walmart listing), a bucket, two funnels, two
+  2 ft lengths of 5/8 in ID vinyl tube with hose clamps, an instant-read thermometer (ThermoPro TP03BW, $13.99,
+  Target listing), a kettle ($14.84, Walmart listing), cups and towels.
+
+**The stiff old cartridge** is made once, in about 15 minutes, and reused. For a 1225 that is hard to operate,
+Moen's FAQs give two remedies:
+- "lubricate it both inside and out with a silicone-based grease (Moen part number 99915)"
+  ([Handle is difficult to operate](https://solutions.moen.com/FAQ's/FAQ's-Troubleshooting/General/Handle_is_difficult_to_operate));
+- "For one-handle faucets with a 1225 cartridge, replace the cartridge"
+  ([My kitchen faucet handle is hard to operate](https://solutions.moen.com/FAQ's/FAQ's-Kitchen_And_Bar/Maintenance/My_kitchen_faucet_handle_is_hard_to_operate.__What_can_I_do_to_correct_this%3F)).
+
+Both were read 2026-11-16. This task is the replacement.
+
+The fault is made as the reverse of the first remedy:
+1. Wash a new 1225 in warm soapy water, working the stem up to its stop and down, and a full turn each way, 20
+   times. Rinse it the same way and dry it for 10 minutes.
+2. Grease its body's outer O-rings again, so it slides like a new one.
+3. Dot its body below the tabs with paint.
+
+It reproduces the symptom, a stem that takes more force to move. The scene's cause, scale, can't be prepared
+repeatably.
+
+**Check it at every reset** (about 3 minutes, with the cartridge home). Hook the luggage scale by a cord under a
+small hose clamp tightened on the stem over a wrap of tape:
+- **Pull-out:** before the clip goes in, raise the scale slowly, straight up, past the stem's stop until the
+  cartridge starts to rise. Note the reading, push the cartridge home, and slide the clip in.
+- **Lift:** with the clip in, note the highest reading before the stem moves.
+- **Turn:** tape the cord's end to the stem, wrap it twice round, and pull level and square to the stem. Note the
+  highest reading before it turns; times the 4 mm radius, that is the torque.
+- **Reference:** measure the new cartridge once, the same way.
+- **Accept** the old one when its lift and turn readings are at least twice the new one's, its lift and pull-out
+  readings are at most 30 N each, its turn reading is at most 30 N (our estimate of what the gripper can apply on the
+  8 mm stem, not a measurement), and its stem still lifts to its stop and turns fully by hand. If it fails, wash it
+  again or prepare the spare.
+
+**Clip and pads.** File every edge of the clip's legs, tips and tab at about 45 degrees until slightly rounded, and
+finish with emery cloth. A cotton swab drawn along each edge must not catch; repeat the check every 10 trials. Cover
+each finger pad with one layer of gaffer tape from the first trial. Replace a bent clip: Moen says the water can't
+be turned back on until a damaged clip is replaced.
+
+**Scoring with simple tools.** With each stem down, paint a thin ring on it level with its cartridge's top, and
+measure each stem's full lift once with the calipers. Film each trial with the phone at rim height, about 30 cm
+away, framing about 15 cm. After the trial, read the score:
+- **From the video:**
+  - a new part leaving the table;
+  - the clip out of the way before the old cartridge rose;
+  - hands open, clear by 1 cm and still for 1 s;
+  - tested before: the old ring rose before the clip moved;
+  - tested after: with the clip home, the new ring rose to its full lift and, so lifted, the notch swung a quarter
+    turn each way, each within 10 degrees, read from video taken above the valve.
+- **Home:** the calipers' depth rod, from the rim to each tab, reads under 1 mm (Moen: tabs "flush with the valve
+  body").
+- **Clipped:** both legs run through both slots and lie flat, and the tabs stay flush.
+- **Hot on the left:** in a photo from above, against a printed protractor, the notch faces the robot within 20
+  degrees.
+- **Left off, and the old cartridge in the tray:** the new ring back level; the photo.
+
+**The water check, at a separate test station, never at the rig.** It checks Moen's notch rule with water. Run it
+before the first trial, and after any trial whose reading is in doubt.
+1. Lay the board in the dish pan, away from the rig. Clamp a tube onto each inlet stub and hold a funnel in each,
+   about 40 cm up. The left inlet, seen from the robot's side, is hot.
+2. At the station, after the trial, refit the handle, turn the water on (pliers on the stem do if the handle
+   doesn't fit):
+   - pour warm water (40 to 45 degrees C, kettle and tap water, checked with the thermometer) into the left funnel;
+   - pour cold tap water into the right one;
+   - keep both funnels full, because a pressure-balancing valve can shut one side when the other runs dry.
+3. Pull the stem fully open. Catch about 100 ml at full left and at full right: it passes when the left cup is at
+   least 10 degrees C warmer.
+4. Drain everything, pull the cartridge, and towel the bore, the cartridge and the board dry before the board goes
+   back.
+
+**Reset:** the old cartridge home with its notch toward the robot, stem down and checked; the clip in; the new
+cartridge in its holder with its notch to the left, reused after its O-rings are checked.
 
 ## Why this task
 
-**Core plumbing repair.** Replacing the cartridge is the standard fix for a dripping single-handle faucet (see
-the repair guides from [Lowe's](https://www.lowes.com/n/how-to/repair-leaky-single-handle-faucet) and
-[This Old House](https://www.thisoldhouse.com/plumbing/how-to-repair-a-dripping-single-handled-faucet)), and for a
-stiff one: Moen's FAQ
+**Core plumbing repair.** Replacing the cartridge is the standard fix for a dripping single-handle faucet (see the
+repair guides from [Lowe's](https://www.lowes.com/n/how-to/repair-leaky-single-handle-faucet) and
+[This Old House](https://www.thisoldhouse.com/plumbing/how-to-repair-a-dripping-single-handled-faucet)). It is also
+the fix for a stiff one. Moen's FAQ
 [Handle is difficult to operate](https://solutions.moen.com/FAQ's/FAQ's-Troubleshooting/General/Handle_is_difficult_to_operate)
-(read 2026-11-12) puts it down to debris, mineral buildup or a damaged seal in the cartridge, which "will need to
-be serviced or replaced". For a 1225 it first suggests greasing the cartridge; this task is the replacement.
-Plumbers (O*NET 47-2152.00) and maintenance and repair workers (49-9071.00) do it as routine work, and the 1225 is
-one of Moen's common cartridges.
+gives the cause as "sediment or debris in the cartridge, mineral buildup or a damaged seal within the cartridge":
+"The cartridge will need to be serviced or replaced". For a 1225, that page suggests grease,
+and Moen's kitchen FAQ says "replace the cartridge" (both read 2026-11-16; see "Real trial"). The workers who do it
+(read 2026-11-16 unless noted):
+- **General maintenance and repair workers** hold 1,529,700 US jobs (BLS OEWS, May 2025).
+  - O*NET 49-9071.00 gives them the Core task (importance 69) "Assemble, install, or repair wiring, electrical or
+    electronic components, pipe systems, plumbing, machinery, or equipment".
+  - The BLS handbook says they "work on plumbing" and "begin by doing simple tasks, such as fixing leaky faucets"
+    ([General Maintenance and Repair Workers](https://www.bls.gov/ooh/installation-maintenance-and-repair/general-maintenance-and-repair-workers.htm),
+    modified 2026-10-29).
+- **Plumbers, pipefitters and steamfitters** (465,840): O*NET 47-2152.00's Core task "Maintain or repair plumbing
+  by replacing defective washers, replacing or mending broken pipes, or opening clogged drains".
+- **Their helpers** (44,330): O*NET 47-3015.00's Core task "Perform rough-ins, repair and replace fixtures and water
+  heaters, and locate, repair, or remove leaking or broken pipes".
 
-**Test before and after.** A tradesperson confirms the fault before taking the faucet apart and checks the work
-before leaving. Moen's procedure ends with a hot and cold check: "If the hot and cold are reversed", turn the stem
-180 degrees (the article below). Without water in the simulation, the robot makes the check mechanically: the stem
-must lift to full-on and swing to both ends, and the cartridge must stay put under its clip.
+49-9071 alone passes 500,000. No official source says how often each worker does this job.
 
-**The difficulty is in the hands.** Each step is contact-rich, millimetre-scale manipulation:
-- pinch a 10 x 8 mm tab and slide a 1.5 mm copper clip out of two slots;
-- pull the old cartridge out by its 8 mm stem against about 10 N of O-ring drag;
-- insert the new one keyed by its tabs into 12 mm cut-outs, and push it fully home against the same drag;
-- thread the clip back through both slots, which it passes only with the cartridge home to within about 0.5 mm;
-- turn the stem to within 20 degrees of its set alignment;
-- work the stems: lift the stiff old one against its bind, and the new one to full-on and both ends, without
-  pulling the cartridge up, then push it down to off.
+**Test before and after.** A tradesperson confirms the fault before taking the faucet apart, and checks the work
+before leaving; Moen's last step covers hot and cold being "reversed". Without water in the simulation, the robot
+checks mechanically: the stem lifts to full-on and swings to both ends, and the cartridge stays put under its
+clip.
+
+**The difficulty is in the hands,** in a fixed order, as the task.json context lists step by step.
 
 **The stem's alignment.** The setting is a physical alignment the robot must achieve: notch to the front, as the
-old stem stood when it came out. In the model that alignment puts the piston's port where the handle's left
-swing opens the hot inlet. Plumbing codes require hot on the left, for example IPC 607.4 as adopted locally
-([City of Chicago 18-29-607.4](https://codelibrary.amlegal.com/codes/chicago/latest/chicago_il/0-0-0-2691725))
-and the UPC's equivalent. The exact model-code wording wasn't checked against the ICC book.
+old stem stood when it came out. In the model, that alignment puts the piston's port where the handle's left swing
+opens the hot inlet. Hot on the left is code. Chicago's plumbing code, which adopts the IPC's 607.4, requires it
+([18-29-607.4](https://codelibrary.amlegal.com/codes/chicago/latest/chicago_il/0-0-0-2691727)); the ICC's own text
+wasn't checked.
 
 **No artificial constraints.** The instruction states the goal only: any arm or both may be used, in any order
 that works. All geometry is built by the task file; there are no third-party assets.
 
-**Moen's own procedure.** The task follows it step by step ([1225 Cartridge: Single Handle Bathroom Faucets
-(Prior to 2009)](https://solutions.moen.com/Article_Library/1225_Cartridge:_Single_Handle_Bathroom_Faucets_(Prior_to_2009)),
-read 2026-11-12):
-1. Slide the copper retainer clip out.
-2. Raise the stem and pull the cartridge out by it.
-3. Push the new cartridge completely in, its plastic tabs flush with the valve body and centred on the cut-outs at
-   12 and 6 o'clock.
-4. Slide the clip back in on top of the cartridge. Don't force it: if it resists, the cartridge "isn't aligned".
-5. Turn the stem so the small notch faces forward. If hot and cold are reversed, turn the stem 180 degrees.
+**Moen's own procedure**
+([1225 Cartridge: Single Handle Bathroom Faucets (Prior to 2009)](https://solutions.moen.com/Article_Library/1225_Cartridge:_Single_Handle_Bathroom_Faucets_(Prior_to_2009)),
+read 2026-11-16):
+1. Slide the copper clip out.
+2. Turn the cartridge a quarter turn with the plastic tool from the 1225 kit, "to help loosen" it.
+3. Raise the stem until it stops and pull the cartridge out by it with pliers ("This may require some effort").
+4. Push the new one completely in, tabs flush and centred on the cut-outs at 12 and 6 o'clock.
+5. Slide the clip back on top. If it resists, the cartridge "may not be properly aligned".
+6. Turn the stem so the small notch faces forward, or 180 degrees round if hot and cold are reversed.
+
+The task leaves out the loosening turn, which frees a cartridge stuck in its body. This one is stiff in its stem,
+and its body's O-rings drag like a new one's (about 10 N). In the model, too, a keyed cartridge turns at most 6.7
+degrees in its cut-outs. The robot pulls it out by its stem, as Moen does with pliers.
 
 **Not a variant of the board's sealant-gun reload.** That task restores a gun to working order. Here the work is
 drag, keying, a retainer that proves the cartridge is home, a precise rotation, and a function test of the valve.
 
+## Fidelity
+
+All parts are rigid bodies. The valve body is a static triangle mesh. The cartridges, stems and clip are
+compounds of primitives at the 1225's approximate size; Moen publishes no drawing. There is no water, so the tests
+are mechanical, and hot and cold follow from where the piston's port faces the inlets.
+
+**The valve body is a model.** It is a column with side inlets, red and blue nuts and a spout. The real trial uses
+a Moen Moentrol valve body lying on the board ("Real trial"). Its cartridge, bore, cut-outs and clip are the real
+parts. Its inlets, tub outlet and pressure-balancing spool are not modelled.
+
+**The stiff old stem** is modelled as hard joint limits (2 mm and 15 degrees), a stem bound by scale, so the faucet
+won't open fully. A real stiff cartridge is a drag that gives here and there rather than a clean stop. The real
+trial's old cartridge reproduces that drag: a genuine 1225 with the grease washed out of its stem, needing at least
+twice the new one's force. It drags where the model stops, so a real robot may lift it further than 2 mm; the
+before-test (a lift of at least 1.5 mm) reads the same either way. In the real trial the old stem does reach its
+stop under enough force, so "won't open fully" holds strictly only in the simulation; there it means the stem won't
+open fully under the force that opens a new cartridge.
+
+**The detent and the drag.** The detent that holds a stem on or off is a spring ball; the real 1225 holds its stem
+by its O-rings' friction. The ball weighs 1 g, more than a real 3 mm steel ball, to keep the solver steady against
+the 20 g stem. The stems' turning drag is a damping drive on the joint, plus angular damping (10 per second) on
+each cartridge and stem body. The second is a stand-in: PhysX applies it to a body's whole spin, about every axis,
+so it also slows the rolling of a dropped part.
+
+**O-ring drag** is the friction of two spring-loaded balls (about 1.1 between ball and shell), about 10 N in all:
+the order of a lubricated O-ring fit. Parker's O-ring handbook works an example of about 12 N for a single dry ring
+of this size, a scaling estimate, not a measurement of the 1225. A seized cartridge, which needs a puller, is out of
+scope.
+
+**Solver settings for millimetre parts.**
+- The clip is solved with 32 position and 4 velocity iterations (PhysX's default is 4 and 1).
+- The valve body's colliders and the clip's legs and tab start contacts 0.2 mm out and rest at zero separation. A
+  pair of them then looks 0.4 mm out, less than the 0.5 mm ledge under the slots and the clip's 0.5 mm side play.
+  Without this, the 7 g clip, caught in an overlap while it was pushed home, was flung out of its slots at up to
+  0.65 m/s.
+- Every part keeps PhysX's unbounded speed for pushing it out of an overlap. Capped at 5 cm/s, a part let whatever
+  pressed it hard go through it: the fingers closed through a gripped stem and the boss, and a cartridge pulled up
+  hard went through the clip's legs.
+- The cartridges, their stems and the detent balls keep all of PhysX's defaults.
+
+These are solver settings only: no size, mass, friction or scoring threshold changes.
+
 ## What the robot sees
 
-The instruction is a work order: the handle is stiff and won't open fully; check it, replace the cartridge with
-hot on the left, make sure the faucet works, leave it off, and put the old one in the parts tray. The scene shows
-the rest: the clip's
-tab, the tabs in the cut-outs, the supplies' red and blue nuts, and the stems' dark notches. The old stem's notch
-faces the front, which is the alignment the new stem must be given. The order follows from the parts:
-- the clip has to come out before the cartridge can;
-- the new cartridge has to be pushed fully home before the clip goes back;
+The instruction is a work order. The scene shows the rest: the clip's tab, the tabs in the cut-outs, the supplies'
+red and blue nuts, and the stems' dark notches. The old stem's notch faces the front, the alignment the new stem
+must be given. The order follows from the parts:
+- the clip comes out before the cartridge can;
+- the new cartridge goes fully home before the clip goes back;
 - the fault is checked before the clip comes out, and the work after it goes back.
 
-At 320 x 176:
-- **From a wrist camera** 6 to 10 cm above the stem, the notch is about 4 to 5 pixels long, and each supply's red
-  or blue nut is about 8 to 10 pixels across.
-- **From the top camera,** the notch is under a pixel and each nut about 2 pixels. Aligning the stem needs a close
-  view.
+At 320 x 176, from a wrist camera 6 to 10 cm above the stem, the notch is 4 to 5 pixels long and each nut 8 to 10
+pixels across. From the top camera the notch is under a pixel, so aligning the stem needs a close view.
 
 ## Runtime and seeds
 
-- Run limit: 2,400 control steps at 20 Hz (2 minutes). The scripted demo parks at 104.3 s and its plan is 106.8 s
-  long in all.
-  - In the simulator, three trials run back to back each scored 1.0 and ended as a success at step 2,069 (103.45 s),
-    the full score having held for 1 s.
-  - The Dream-1 trial scored 0.0 and ran all 2,400 steps.
-  - Wall clock on one GPU shared with three other runs: about 38 minutes for the first trial (startup included) and
-    about 35 to 38 minutes for each further trial in the same process.
-- No randomness: the layout is fixed (`-E object_jitter=0`), so no seed is needed.
+- **Run limit:** 2,400 control steps at 20 Hz (2 minutes). The scripted demo parks at 104.3 s and its plan is
+  106.8 s long in all.
+- **Results:** three trials run back to back in the simulator each scored 1.0 and ended as a success at step 2,069
+  (103.45 s). The Dream-1 trial scored 0.0 and ran all 2,400 steps.
+- **Wall clock:** about 35 to 38 minutes a trial on one shared GPU.
+- **Seeds:** none needed; the layout is fixed (`-E object_jitter=0`).
 
 ## The scripted demo
 
-The faucet stands in front of the right arm. That is where its straight-down grips reach high enough to lift a
-10 cm cartridge clear of the rim; the left arm's straight-down grips can't reach that far across. So the demo does
-the job with the right arm, as a plumber can, and parks the left. That is the demo's choice, not a rule: a policy
-may use either arm or both. In order, the right arm:
-1. Tests the old stem: grips it, lifts it aiming 12 mm up (it binds at 2), tries a 30 degree turn (it binds at
-   15), turns it back, pushes it down past its lower stop, and lets go.
-2. Pinches the clip's tab and slides the clip 31 mm out. The legs' tips clear the cartridge's top, still in their
-   slots, and the clip rests level on the spout, which joins the valve body just under the slots.
-3. Grips the old stem, raises it to its stop, pulls the cartridge out, and drops it in the parts tray.
-4. Lifts the new cartridge out of its holder by its body, the pads closing across the body's top 14 mm, below the
-   tabs, so its tabs keep their bearing; the stem turns freely in it and couldn't hold them. It draws the cartridge up
-   out of the holder slowly, lowers it until its bottom hangs 3 mm over the rim, lets it hang still, and eases it
-   into the bore at about 8 mm/s, then lowers it on until its bottom is 39 mm in, just above the ball plungers,
-   and lets go. There the bore's 0.5 mm play holds it within about 1.5 degrees of upright, and it settles on the
-   balls. The arm then closes its fingers over the stem and pushes the cartridge home by the stem's top, straight
-   down its axis, aiming 32 mm past home for the arm's give against the plungers' drag. Earlier versions carried
-   it by the 5 mm boss round its stem and pushed it home by that grip. In the simulator it then hung anywhere from
-   0.5 to 4.1 degrees off vertical from one trial to the next, against the 1.7 degrees that the bore's 1.5 mm
-   lead-in allows, and once it jammed in the bore's mouth, went in turned 6 degrees and stayed 0.7 mm proud, so
-   the clip couldn't go home.
-5. Grips the stem, which the push left down on its lower stop (off), and turns it a quarter turn anticlockwise,
-   from the left to the front.
-6. Pushes the clip back home with its closed fingers on the flat front face of the tab, 3 mm above the clip's
-   bar. It slows for the last 8 mm and stops with the legs' tips 16 mm behind the bore's axis, inside the back
-   wall's outer face: pushed across that face, the legs' ends caught on it and the clip hopped in the simulator.
-   The legs still reach 4.5 mm past what "clipped" needs. Nothing holds the clip, so its slots set its angle. (A
-   pinch would lock it to the wrist's angle, and with its legs in both walls' slots the clip can turn only about
-   1.6 degrees.) The fingers back off 4 mm before rising, so nothing pulls the clip back.
-7. Tests the new stem: grips it slowly and lets the grip settle, then lifts it to full-on, aiming 1 mm past, and
-   holds there. The aim comes from the lags measured in the simulator: the arm settled 0.5 mm short of its aim,
-   and the stem slipped up to 0.5 mm in the grip as a swing began, so it still ends at its stop. Pressing past the
-   stop draws the clipped cartridge up, which lifts the clip's legs off their floors and lets the clip creep;
-   aiming 1 mm past presses under half as hard as the aim that did that. It swings the stem a quarter turn to the
-   full-hot end, holds, and swings it back to the centre, then pushes it down past its lower stop. The arm's
-   straight-down grips turn only 90 degrees, so it lets go, turns its open fingers back slowly, and grips again
-   for the full-cold end. Then it lets go and parks. The two swings cancel, so the stem ends set as it was.
+The faucet stands in front of the right arm, whose straight-down grips reach high enough to lift a 10 cm
+cartridge clear of the rim. So the demo uses the right arm and parks the left; a policy may use either arm or both.
+In order, the right arm:
+1. Tests the old stem: it lifts it, aiming 12 mm up (it binds at 2), tries a 30 degree turn (it binds at 15), turns
+   it back, pushes it down past its lower stop, and lets go.
+2. Pinches the clip's tab and slides the clip 31 mm out, onto the spout. The legs' tips clear the cartridge, still
+   in their slots.
+3. Grips the old stem, raises it to its stop, pulls the cartridge out and drops it in the parts tray.
+4. Lifts the new cartridge out of its holder by its body, below the tabs, so the tabs keep their bearing; the free
+   stem couldn't hold them. It lowers it until it hangs 3 mm over the rim, lets it hang still, and eases it into
+   the bore at about 8 mm/s, then on until its bottom is 39 mm in, and lets go. There the bore's 0.5 mm play holds
+   it within about 1.5 degrees of upright. The closed fingers then push it home by the stem's top, straight down,
+   aiming 32 mm past home for the arm's give against the drag. Earlier versions gripped the 5 mm boss, and the
+   cartridge hung up to 4.1 degrees off vertical and once jammed.
+5. Turns the stem a quarter turn anticlockwise, from the left to the front.
+6. Pushes the clip back home with its closed fingers on the tab's front face, 3 mm above the clip's bar. It slows
+   for the last 8 mm and stops with the legs' tips 16 mm behind the bore's axis, inside the back wall's outer face,
+   where the legs' ends caught and the clip hopped. The legs still reach 4.5 mm past what "clipped" needs. Nothing
+   holds the clip, so its slots set its angle (in both slots it can turn only about 1.6 degrees). The fingers back
+   off 4 mm before rising.
+7. Tests the new stem: it grips it, lifts it to full-on, aiming 1 mm past, and holds there. Measured lags set that
+   aim: the arm settled 0.5 mm short of its aim, and the stem slipped up to 0.5 mm in the grip as a swing began.
+   Pressing harder past the stop drew the clipped cartridge up. It swings the stem a quarter turn to the full-hot
+   end and back, pushes it down past its lower stop, regrips (its straight-down grips turn only 90 degrees) for the
+   full-cold end, then lets go and parks. The two swings cancel, so the stem ends set as it was.
 
 Every waypoint comes from the layout constants; nothing is read from the simulator.
 
 ## How the file works
 
 - **Scene.** The task-file API has boxes, upright cylinders and spheres. The file wraps the framework's
-  `yam_arena.scene.task_object` once that module loads. It matches this file's own object specs by value, so other
-  tasks' objects are untouched. That lets it add what the API lacks:
-  - **The vanity's spawner** also builds:
-    - the valve body, as static triangle meshes: the bore's wall with the two inlet ports and the pockets for the
-      ball plungers; the clip slots and the cut-outs; and lead-ins at the rim and at the cut-outs' floor;
-    - its floor;
-    - the holder cup;
-    - two ball plungers: 6 mm steel balls on PhysX prismatic joints with spring drives, anchored to the vanity.
-  - **Each cartridge's spawner** adds its two tabs and the boss round its stem, as more colliders of its body,
-    plus its O-ring bands and inlet windows (looks only).
-  - **Each stem's spawner** adds:
-    - its notch, piston and port (looks only);
-    - a joint to its cartridge. Its frames put the stem's spin on the joint's twist axis, with a damping drive;
-      the stem slides up to a stop, and every other axis is locked. The new stem's twist is free and its slide
-      6 mm. The old stem's slide stops at 2 mm and its twist at 15 degrees either way; its joint frame is turned
-      so its twist reads 0 where it starts (it stands turned 180 degrees on its cartridge, and PhysX twist limits
-      must lie within 180 degrees).
-  - **Each cartridge's detent ball** (`old_detent_ball`, `new_detent_ball`): a 3 mm steel-grey sphere that is a
-    task object of its own, so the framework resets it with the other parts. It starts touching its stem in the
-    cartridge's top; the hook adds only its prismatic joint to the cartridge, whose spring drive presses it about
-    1.2 N onto the stem. It is set in the side of the boss and stands 1 mm proud of it toward the back tab (2 mm short
-    of the tab), inside the boss's height, so the fingers on the body and the clip's legs pass clear of it.
-  - **The clip's spawner** adds its legs and grab tab.
-- **Never fails open.**
-  - **Build record:** the hook records which objects it built. The score is 0 unless every one was built.
-  - **First-step check:** on each trial's first step, every part's reported outline must match the shapes built,
-    within 0.5 mm, and so must the vanity's, which takes in the valve body and the holder built under it. Each part
-    must start where it was put, and each stem and detent ball where its joint holds it on its cartridge. A
-    mismatch scores 0 for that trial.
-  - **Valid readings:** any non-finite position, orientation, velocity, outline or joint reading, or an orientation
-    that isn't a rotation (a quaternion far from unit length), also scores 0 for the trial.
-- **Keyed by geometry.**
-  - **Seating:** the tabs pass only through the cut-outs, within about 8 degrees of front-back. A cartridge is home
-    when its tabs rest on the cut-outs' floor.
-  - **Clip:** its legs rest on the slots' floor, 0.5 mm above a seated cartridge's shoulder. A cartridge 0.6 mm or
-    more higher blocks them (checked offline by point sampling). "Clipped" needs both the legs on the floors
-    (lowest point at most 0.2 mm above) and the cartridge's bottom within 0.5 mm of its seat, so a clip tipped
-    over a cartridge that stands proud doesn't count.
-  - **What the score reads:** every state comes from PhysX poses and outlines. The rules are fixed thresholds on
-    them, plus one fixed modelled number: the handle's quarter-turn swing in the hot-left rule.
-- **O-ring drag.** Two balls stand 1 mm proud of the bore, 28 mm above its floor. Each presses about 4.5 N on a
-  cartridge passing; with friction about 1.1 between ball and shell, pushing one home or pulling it out takes about
-  10 N. The stem's turning drag is a damping of 0.06 N m s/rad on its joint: about 30 mN m at the demo's turn, and
-  more against a quick knock. Each cartridge and stem body also has angular damping (10 per second), standing in
-  for the same O-ring friction, so a cartridge carried by its stem doesn't keep spinning on it. PhysX applies it to
-  each body's whole spin, about every axis, so it also slows a dropped part's rolling.
-- **Episode rules.** `score()` runs after every step and reads the end state. Only a new part leaving the table,
-  the trial's checks, the tests (each latched once made), the clip's first move, a cartridge rising under its
-  clip, and the run of steps at full score carry between steps.
-- **New trials.** Task files get no reset call, so the file hooks the embodiment's `reset` (once, with a callback
-  per loaded copy of the file). It also starts a new trial whenever the embodiment's episode clock runs backwards.
-  Either way each trial starts fresh.
-- **Hands.** The grippers' tool points and finger pads come from the embodiment's joint positions and the
-  framework's own forward kinematics.
+  `yam_arena.scene.task_object`, matching its own object specs by value, to add what the API lacks:
+  - the valve body as static triangle meshes (bore, inlet ports, clip slots, cut-outs, lead-ins), its floor and the
+    holder cup;
+  - two ball plungers on spring-driven prismatic joints for the O-ring drag;
+  - the cartridges' tabs and bosses;
+  - the stems' joints: twist with a damping drive, and a slide to a stop. The old stem stops at 2 mm and
+    15 degrees; the new one slides 6 mm and turns freely;
+  - each cartridge's 3 mm detent ball, its own task object, sprung about 1.2 N onto the stem;
+  - the clip's legs and tab.
+- **Never fails open.** The score is 0 unless every hook-built object was built, every part's outline matches its
+  shapes within 0.5 mm and starts where it was put on the first step, and every reading is finite and a valid
+  rotation.
+- **What the score reads:** PhysX poses, outlines and joint states. The rules are fixed thresholds on them, plus
+  one fixed modelled number: the handle's quarter-turn swing in the hot-left rule.
+- **Episode rules.** `score()` runs after every step. Only a part leaving the table, the checks, the latched tests,
+  the clip's first move, a cartridge rising under its clip, and the run at full score carry between steps.
+- **New trials.** Task files get no reset call, so the file hooks the embodiment's `reset`. It also starts a new
+  trial whenever the embodiment's episode clock runs backwards.
+- **Hands.** The grippers' tool points and pads come from the embodiment's joint positions and the framework's
+  forward kinematics.
 
 ## Checking it without a GPU
 
-The file loads without Isaac Sim, so `task_file.load()` checks its objects, hooks and demo on any machine with
-`yam-isaac-lab-arena` installed:
+The file loads without Isaac Sim:
 
 ```bash
 python -B -I -c "from yam_arena import task_file; t = task_file.load('tasks/replace-faucet-cartridge/replace_faucet_cartridge.py'); print(t.names)"
 ```
 
-Without Isaac Lab the file builds nothing extra (so it scores 0 there): the valve body, the ball plungers and the
-joints are added only when Isaac Lab can be imported. Before submitting, we checked these offline as well:
-- the demo, played through the framework's own IK and forward kinematics, with the gripper's and fingers'
-  collision meshes tested against every solid;
-- that the clip passes only with the cartridge home, that only front-back seats, and that the piston's port meets
-  the hot inlet only when set;
-- the clip's push: the pushing fingers press the tab's flat face, clear of the spout and in front of the column;
-  the push can't tip the clip; it stops short of where the clip's legs began to jump in the simulator; and the
-  clip's whole sweep clears the ball plungers;
-- the clearances, the drag against the grip and the arm's compliance, and how large the notch and the supplies'
-  nuts appear in the cameras;
-- the tests: the detent holds a stem lifted; the lifts reach full-on and the pushes reach off despite the arm's
-  lag; the after-test's lift ends at the stem's stop yet presses on it under half as hard as the aim that drew
-  the cartridge up (both by the lags measured in the simulator); only the free stem reaches the after-test's mark;
-  retention's 2 mm limit clears the slots' play and an unclipped cartridge's rise; and a keyed cartridge can turn
-  at most 6.7 degrees in its cut-outs, short of the 8 that "keyed" allows.
-
-## Fidelity
-
-All parts are rigid bodies:
-- the valve body is a static triangle mesh;
-- the cartridges, stems and clip are compounds of primitives at the 1225's approximate size (Moen publishes no
-  drawing).
-
-There is no water, so the tests are mechanical: how far a stem lifts and turns, and whether the cartridge stays put
-under its clip. Hot and cold follow from where the piston's port faces the inlets.
-
-The stiff old stem is modelled as hard joint limits (2 mm and 15 degrees). A real stiff cartridge is scale or a
-worn seal, a drag that gives here and there rather than a clean stop. The detent that holds a stem on or off is a
-spring ball; the real 1225 holds its stem by its O-rings' friction. The ball weighs 1 g, more than a real 3 mm steel
-ball, to keep the solver steady against the 20 g stem.
-
-The stems' turning drag on their cartridges is modelled two ways: a damping drive on the joint, and angular damping
-(10 per second) on each cartridge and stem body. The second is a stand-in: PhysX applies it to a body's whole spin,
-about every axis, so it also slows the rolling of a part that is dropped or set down, which real O-rings wouldn't.
-
-O-ring drag is the friction of two spring-loaded balls (about 1.1 between ball and shell), about 10 N in all.
-That is the order of a lubricated O-ring fit, not a model of grease. Parker's O-ring handbook works an example of
-about 12 N of seal friction for a single dry ring of this size; that is a scaling estimate, not a measurement of
-the 1225. A seized cartridge, which needs a puller, is out of scope: the old one is
-taken to be a recent install. The drag stays within what the arm's compliant position control can push and pull.
-
-**Solver settings for millimetre parts.** The clip is solved with 32 position and 4 velocity iterations (PhysX's
-default for a body is 4 and 1). The valve body's colliders and the clip's legs and grab tab start contacts 0.2 mm out
-and rest at zero separation. A pair of them then looks 0.4 mm out, less than the valve body's thinnest wall (the
-0.5 mm ledge under the slots) and the clip's 0.5 mm side play in its slots. Without these settings, the 7 g clip,
-caught in an overlap while it was pushed home, was flung out of its slots in the simulator at up to 0.65 m/s. Every
-part keeps PhysX's unbounded speed for pushing it out of an overlap. Capped at 5 cm/s, a part let whatever pressed
-it hard go through it: the fingers closed through a gripped stem and the boss, and a cartridge pulled up hard went
-through the clip's legs. The cartridges, their stems and the detent balls keep all of PhysX's defaults. These are
-solver settings only: no part's size, mass or friction changes, and no scoring threshold.
+Without Isaac Lab it builds nothing extra, so it scores 0 there. These were checked offline before submitting:
+- the demo through the framework's IK and forward kinematics, with collision checks;
+- the keying, the clip's pass only at home, and the hot-left geometry;
+- the clip's push and the clearances;
+- the tests' margins against the arm's measured lag.
