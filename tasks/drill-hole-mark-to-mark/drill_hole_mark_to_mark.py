@@ -161,9 +161,10 @@ SPUR_FREE = (
     BIT_EXPOSED - 0.010
 )  # after breakthrough the spur rides up the bit: the holder stops 10 mm short
 ON_WOOD = 0.002  # the spur's bottom within this of the top face: on the wood
-AIR_GAP = 0.010  # running with the point more than this off the wood, outside the hole ...
-AIR_STEPS = 4  # ... for this many control steps in a row: run while carried (0)
-DROP_SPEED = 0.5  # m/s downward with no gripper holding it: the drill is falling
+# Dropped: moving down faster than this with no gripper closed on it. A free fall reaches 1 m/s after 51 mm (102 ms),
+# so a short drop on putting the drill down is not a fall. It is read once a control step (20 Hz): a free fall of
+# 115 mm or more always has a step in it past 102 ms; one of 51 to 115 mm is caught only when a step lands there.
+DROP_SPEED = 1.0  # m/s
 DEPTH_PART = 0.020  # 0.25 needs a hole at least this deep
 
 
@@ -1066,8 +1067,6 @@ class Hole:
     exit: np.ndarray | None = None  # where it crosses the bottom face (world)
     withdrawn: bool = False  # the bit came back out after biting: this trial's hole is done
     levered: bool = False
-    ran_in_air: bool = False
-    air_steps: int = 0
     push: float = 0.0  # N, read from the spur's give
     feed: float = 0.0  # m/s this step
     torque: float = 0.0  # N m this step
@@ -1147,12 +1146,6 @@ class Hole:
             self.locked = False
             self.withdrawn = True
             self.pin = None
-        near_wood = self.locked or (
-            over_board(tip, -AIR_GAP) and float(tip[2]) <= TOP_FACE + AIR_GAP
-        )
-        self.air_steps = self.air_steps + 1 if self.speed > 0.0 and not near_wood else 0
-        if self.air_steps >= AIR_STEPS:
-            self.ran_in_air = True
         target = 0.0 if self.withdrawn else self.depth
         writes: list[tuple[str, str, float]] = [
             ("spur", "drive:transX:physics:targetPosition", target)
@@ -1298,10 +1291,8 @@ def drill_parts(parts: Mapping[str, PartView]) -> list[tuple[np.ndarray, np.ndar
 
 
 HAND_CLEAR = 0.050  # every finger pad point at least this far from the drill's parts (its shapes, not its outline)
-HOLD_REACH = 0.035  # a gripper holds the drill: its TCP this near the handle's pinch point ...
-HOLD_OPEN = (
-    HANDLE_SIZE[0] + TRIGGER_SIZE[0] + 0.005
-)  # ... its fingers closed to the handle's depth (+5 mm)
+# A gripper is closed on the drill: a pad point of each of its fingers this near the drill's parts.
+HOLD_NEAR = 0.005
 
 
 def hands_clear(parts: Mapping[str, PartView], grippers: Sequence[Gripper]) -> bool:
@@ -1314,16 +1305,27 @@ def hands_clear(parts: Mapping[str, PartView], grippers: Sequence[Gripper]) -> b
     )
 
 
-def held(parts: Mapping[str, PartView], grippers: Sequence[Gripper] | None) -> bool:
-    """Whether a gripper holds the drill (unknown arms count as holding: a fall is then not called)."""
-    if grippers is None:
-        return True
-    pinch = parts[DRILL].world(GRIP)
+def closed_on(parts: Mapping[str, PartView], gripper: Gripper) -> bool:
+    """Whether a gripper is closed on the drill: facing pad points of its two fingers each within HOLD_NEAR of the
+    drill's parts, with part of the drill between them (the point midway between the two is inside a part). Any part
+    counts, not the handle alone (the handle pinch has one pad on the trigger and one on the handle's back);
+    fingertips resting on one face do not."""
+    boxes = drill_parts(parts)
+
+    def gap(point: np.ndarray) -> float:
+        return min(point_to_box(point, o, r, c, s) for o, r, c, s in boxes)
+
+    pads = gripper.finger_points()[1:]  # after the TCP: one finger's pad points, then the other's
+    half = len(pads) // 2
     return any(
-        g.opening <= HOLD_OPEN
-        and float(np.linalg.norm(np.asarray(g.tcp, dtype=float) - pinch)) <= HOLD_REACH
-        for g in grippers
+        gap(a) <= HOLD_NEAR and gap(b) <= HOLD_NEAR and gap((a + b) / 2) == 0.0
+        for a, b in zip(pads[:half], pads[half:], strict=True)
     )
+
+
+def held(parts: Mapping[str, PartView], grippers: Sequence[Gripper]) -> bool:
+    """Whether a gripper holds the drill: closed on any part of it."""
+    return any(closed_on(parts, g) for g in grippers)
 
 
 # --- the trial's preconditions --------------------------------------------------------------------------------------
@@ -1464,7 +1466,9 @@ def state(parts: Mapping[str, PartView], grippers: Sequence[Gripper] | None, hol
         trigger_off=trigger_speed(trigger_travel(parts[DRILL], parts[TRIGGER])) == 0.0,
         still=all(parts[n].still for n in FREE),
         clear=None if grippers is None else hands_clear(parts, grippers),
-        falling=parts[DRILL].vz < -DROP_SPEED and not held(parts, grippers),
+        # Arms that can't be read are not counted as holding (and such a trial is void: _update).
+        falling=parts[DRILL].vz < -DROP_SPEED
+        and not (grippers is not None and held(parts, grippers)),
     )
 
 
@@ -1508,27 +1512,32 @@ class Grade:
 def grade(
     ledger: Ledger, hole: Hole, now: State, built: bool, hold_steps: int = HOLD_STEPS
 ) -> Grade:
-    """The ladder (README.md). 0 unless the scene's parts were built, or if the trial is void, a part has left the
-    table, the drill fell, the bit was levered more than 6 degrees off its line in the hole, the drill ran with its
-    point away from the wood, or the drill isn't set down on the bench with its trigger off and every finger 5 cm from
-    it. Otherwise:
-    1.0 through, entry within 3 mm of the top X, exit within 4 mm of the bottom X, everything still, held for 1 s;
+    """The ladder (README.md). 0 unless the scene's parts were built, or if the trial is void (the arms unread at any step),
+    a part has left the table, the drill was dropped, or the bit was levered more than 6 degrees off its line in the
+    hole. Otherwise the hole sets the step:
+    1.0 through, entry within 3 mm of the top X, exit within 4 mm of the bottom X, the finish, everything still, held
+        for 1 s;
     0.75 through, entry within 3 mm, exit within 8 mm;
     0.5 through, entry within 6 mm, exit within 12 mm;
-    0.25 a hole at least 20 mm deep, entry within 6 mm."""
-    spoiled = ledger.lost or ledger.dropped or hole.levered or hole.ran_in_air
+    0.25 a hole at least 20 mm deep, entry within 6 mm;
+    and without the finish (the drill set down on the bench with its trigger off and every finger 5 cm from it) the
+    hole scores one step lower. Running the bit away from the wood costs nothing."""
+    spoiled = ledger.lost or ledger.dropped or hole.levered
     complete = now.full and not spoiled
-    if not built or ledger.void is not None or spoiled or now.lost or not now.finished:
-        score = 0.0
+    if not built or ledger.void is not None or spoiled or now.lost or now.clear is None:
+        step = 0
     elif now.through and now.entry <= ENTRY_TOL and now.exit <= EXIT_MID:
         full = now.exit <= EXIT_TOL and complete and ledger.full_steps >= hold_steps
-        score = LADDER[3] if full else LADDER[2]
+        step = 4 if full else 3
     elif now.through and now.entry <= ENTRY_LOOSE and now.exit <= EXIT_LOOSE:
-        score = LADDER[1]
+        step = 2
     elif now.deepest >= DEPTH_PART and now.entry <= ENTRY_LOOSE:
-        score = LADDER[0]
+        step = 1
     else:
-        score = 0.0
+        step = 0
+    if step and not now.finished:
+        step -= 1
+    score = (0.0, *LADDER)[step]
     return Grade(now, ledger.full_steps, score, ledger.void, built, complete)
 
 
@@ -1684,7 +1693,7 @@ def _robot() -> list[Gripper] | None:
     except Exception as error:
         _warn_once(
             "robot",
-            f"can't read the arms' state ({type(error).__name__}: {error}); each such step scores 0",
+            f"can't read the arms' state ({type(error).__name__}: {error}); the trial scores 0",
         )
         return None
 
@@ -1700,6 +1709,10 @@ def _update(objects: Mapping[str, Any]) -> Grade:
         _warn_once("hook", f"could not look for the embodiment ({type(error).__name__}: {error})")
     _restart_if_clock_went_back()
     grippers = _robot()
+    if grippers is None:
+        _LEDGER.spoil(
+            "the arms' state can't be read, so neither a drop nor the hands' clearance can be checked"
+        )
     if not all_finite(objects, grippers):
         _LEDGER.spoil(
             "a non-finite (or degenerate) position, orientation, velocity, outline or joint reading"

@@ -5,8 +5,8 @@ One task file, `drill_hole_mark_to_mark.py`, for the `yam_arena` embodiment of
 
 A 2x4 stands on edge on the bench, clamped and raised on two offcuts over a gap, with a pencil X on the middle of
 its top edge and a matching X on its bottom edge. A 12 V pistol drill/driver with a 1/4 in wood bit lies on its side
-next to it. The robot has to pick the drill up by its handle without running it (the pinch that holds the handle
-also squeezes the trigger), turn it bit-down, set the point on the top X, square the bit and push until the point
+next to it. The robot has to pick the drill up by its handle (the pinch that holds the handle also squeezes the
+trigger: a light pinch carries it, a firm one runs it), turn it bit-down, set the point on the top X, square the bit and push until the point
 bites, squeeze the trigger and feed against the reaction twist, draw the bit out and put the drill down.
 
 The skill is **precise control of position and force with a handheld power tool**. A shallow hole hides a lean of a
@@ -79,37 +79,53 @@ bench that the clamps' bars and handles clear the drill's path and the place it 
 
 ## Score
 
-Every score above 0 needs the finish, checked at the end: the drill resting on the bench (its lowest point within
-5 mm of it; and, seen from above, the rectangle that bounds the drill and its bit, with its sides parallel to the
-bench's edges, clear of the strip x 286 to 374, y -203 to 97 that holds the board and its offcuts), its trigger released, and every finger at least 50 mm from the
-drill's parts. A drill left in the hole or in the hand scores 0.
+The hole sets the score, and the put-down finishes it. The finish, checked at the end: the drill resting on the
+bench (its lowest point within 5 mm of it; and, seen from above, the rectangle that bounds the drill and its bit,
+with its sides parallel to the bench's edges, clear of the strip x 286 to 374, y -203 to 97 that holds the board
+and its offcuts), its trigger released, and every finger at least 50 mm from the drill's parts. Without the finish
+(the drill still in a hand, left in the hole or lying on the board) the hole scores one step lower: 0.5, 0.25 and
+0 in place of 0.75, 0.5 and 0.25 (1.0 needs the finish, so the best hole scores 0.5 without it).
 
 | Score | When |
 |---|---|
-| 1.0 | Through; entry within 3 mm of the top X; exit within 4 mm of the bottom X; everything still (under 10 mm/s and 0.5 rad/s) for 1 s |
+| 1.0 | Through; entry within 3 mm of the top X; exit within 4 mm of the bottom X; the finish; everything still (under 10 mm/s and 0.5 rad/s) for 1 s |
 | 0.75 | Through; entry within 3 mm; exit within 8 mm |
 | 0.5 | Through; entry within 6 mm; exit within 12 mm |
 | 0.25 | A hole at least 20 mm deep, entry within 6 mm |
-| 0 | Anything else, or if at any time the drill fell, the bit was levered, the bit spun in the air, or the drill left the bench top |
+| 0 | Anything else; and the whole trial if at any time the drill was dropped, the bit was levered in its hole, or the drill left the bench top |
 
 - **Entry, exit:** where the hole's line crosses the top and bottom edges, from each X's centre. **Through:** the
   point got 4 mm past the bottom edge.
-- **Fell:** the drill dropping faster than 0.5 m/s (a free fall reaches that in about 13 mm) while no gripper is
-  closed on its handle (fingers at most 55 mm apart, within 35 mm of the handle's pinch point). A hand on the
-  housing alone is not holding it; a breakthrough lunge with the handle in hand is not a fall.
+- **Dropped:** the drill falling faster than 1 m/s (the speed a free fall reaches in 51 mm) while no gripper is
+  closed on it. A gripper is closed on the drill when facing pads of its two fingers are each within 5 mm of it,
+  with part of the drill between them (any part counts, so a hand closed on any part of the drill is never called
+  a drop). Letting go a little above the bench, or a breakthrough lunge with a hand on the drill, is not a drop.
+  The speed is read once a control step (20 Hz), so every free fall of 115 mm or more (from where the drill leaves
+  the pads) is caught, and one of 51 to 115 mm when a step lands in it. The hazard: a falling drill with a 6 in
+  bit in it.
 - **Levered:** more than 6 degrees between the bit and the line its hole started on (its line when 3 mm in), until
-  the point is drawn back out.
-- **Spun in the air:** the bit turning for 0.2 s with its point more than 10 mm from the board and out of its hole.
-- **One hole per trial:** once the bit is drawn back out, that hole is the trial's.
+  the point is drawn back out. The failure and the hazard: the hole is reamed oval and its exit thrown off line
+  (6 degrees over 89 mm is 9.3 mm), and deeper in the side load binds the 1/4 in bit and can bend or snap it.
+- **Left the bench top:** the drill's centre past an edge of the bench, or any part of it more than 50 mm below
+  the bench top, held or not. The hazard: a drill and its bit off the bench can fall to the floor.
+- **Running the bit away from the wood costs nothing:** starting the drill before the point touches, or drawing
+  the bit back out while it turns, is ordinary use. The finish still needs the trigger released.
+- **One hole per trial:** once the bit is drawn fully out of a hole 3 mm deep or more, that hole is the trial's
+  (a second hole or a re-entry adds nothing): the model can't take the bit back into a hole, so a bit drawn fully
+  out before breakthrough leaves a hole that is not through. Backing off with the point still in the hole costs
+  nothing. A start lifted off before 3 mm may be moved.
 - **Real trial:** a 1/4 in rod pushed into the hole and a ruler from each X's centre give entry and exit (turn the
   board over for the exit); the rod passing shows it is through, and its depth gives the 20 mm. The trial video
-  shows the set-down, a fall (a drop of about 13 mm or more with no gripper closed on the handle) and a spin in
-  the air (bit and holder seen turning, motor heard, counted in frames). Levering: in each tripod video, read the
+  shows the set-down, a drop (the drill falling more than about 50 mm with no gripper closed on it), the drill
+  leaving the bench, and whether the bit was drawn fully out before it broke through (the hole then counts as not
+  through, its depth read from the length of bit showing above the board). Levering:
+  in each of the two tripod videos (from the bench's end, and from across the bench), read the
   drill's lean from the board's top edge with a protractor on a paused frame, just after the bit has entered and
   at its greatest lean in the wood; a change of more than 6 degrees in either view is levered (if it changes in
   both, the root of the sum of their squares: the scorer measures the full angle).
 - **Guards:** a trial is void (0) unless every part was built and starts where it was built (the trigger and the
-  point at rest), or on a non-finite reading, or if the arms' state can't be read.
+  point at rest), or on a non-finite reading, or if at any step the arms' state can't be read (a drop and the
+  hands' clearance could then not be checked).
 
 ## How the file works, and its fidelity
 
@@ -183,28 +199,52 @@ part or writes to the simulation.
 
 ## Results
 
-From real runs of this task file on the official stack (3 trials in one process for each demo run; one Dream-1
-trial):
+From real runs of this task file on the official stack, on an NVIDIA RTX PRO 6000 (3 trials in one process for
+each demo run; one Dream-1 trial):
 
-| Run | GPU | Trials | Score |
-|---|---|---|---|
-| Scripted demo | NVIDIA L40S | 3 | 1.0 on 3 of 3 |
-| Scripted demo | NVIDIA RTX PRO 6000 | 3 | 1.0 on 3 of 3 |
-| Dream-1 (`dream`) | NVIDIA RTX PRO 6000 | 1 | 0.0 |
+| Run | Trials | Score |
+|---|---|---|
+| Scripted demo | 3 | 1.0 on 3 of 3 |
+| Scripted demo, traced step by step | 3 | 1.0 on 3 of 3 |
+| Dream-1 (`dream`) | 1 | 0.0 |
+| Check: the demo, with the bit first run for 1.5 s while the drill is carried, away from the wood | 1 | 1.0 |
+| Check: a through hole on its marks, the drill then left in the hole and held | 1 | 0.5 |
+| Check: the drill let go while carried, its underside about 165 mm above the bench (as commanded) | 1 | 0.0 |
 
-- The same demo, traced step by step (3 trials on each GPU type, on a copy of this file that differs only in
-  comments), scored 1.0 in all 6: entry 2.43-2.95 mm from the top X, exit 2.54-3.13 mm from the bottom X, the drill
-  laid on the bench with its trigger off and the hands clear.
+- The traced demo, trial by trial: entry 2.62, 2.92 and 2.46 mm from the top X, exit 2.61, 2.89 and 2.59 mm from
+  the bottom X; the bit never more than 0.57 degrees off its hole's line; the drill laid on the bench with its
+  trigger off and the hands clear.
+- The three checks play other arm plans through this same file, traced (the plans are test tools, not part of
+  this folder). Running in the air: trigger fully in for 1.5 s with the bit clear of everything, then entry
+  2.9 mm and exit 3.0 mm, 1.0. Left in the hole: entry 2.9 mm, exit 2.9 mm, the finish missing, so one step
+  lower, 0.5. Let go (the pads open over 0.6 s): the fastest of the fall's 20 Hz readings was 1.12 m/s, with no
+  gripper on the drill, 0.
 - Runtime: each demo trial reaches its 1 s hold after about 3,226 control steps (161 s of simulated time; its plan
-  is 165 s, the run limit 6,000 steps); three trials took about 79 minutes of wall time on the L40S and 105 on the
-  RTX PRO 6000, which was shared with other jobs.
-- Dream-1 ran all 6,000 steps (300 s of simulated time, about 66 minutes of wall time). Its right gripper went to
-  the drill and stayed there; the drill was never lifted and no hole was started, so it scored 0.
+  is 165 s, the run limit 6,000 steps); three trials took about 80 minutes of wall time, on a GPU shared with
+  other jobs.
+- Dream-1 ran all 6,000 steps (300 s of simulated time, about 64 minutes of wall time). Its right gripper went to
+  the drill and stayed there; in frames sampled every 50 s the drill still lies where it started, and it scored 0.
+- Before this revision only the scoring rules differed (the scene, the cut and the demo are unchanged); that file's
+  demo scored 1.0 on 3 of 3 on an NVIDIA L40S and on an RTX PRO 6000.
+
+## Changes since the first review
+
+- **Removed, as the review asked:** the 0 for the bit turning away from the wood. Starting the drill before the
+  point touches, or drawing the bit out while it turns, now costs nothing (the first check above).
+- **Every remaining whole-trial 0 for what the robot does names its hazard or failed outcome** (Score): the drill
+  dropped, the bit levered in its hole, the drill off the bench. Two rules of the removed kind were eased with it:
+  a hole without the put-down now scores one step lower, not 0, and a drop is now a fall faster than 1 m/s (a free
+  fall of 51 mm) with no gripper closed on any part of the drill, not a release a little above the bench. The
+  other zeros are integrity guards (parts not as built, or state that can't be read).
+- **The points raised on a shallow drilled-hole task are answered here:** the workholding and clamp positions
+  (Setup and objects); the drill's own trigger, pressed by the pinch on its handle with no adapter or stand-in
+  (Setup; How the file works); chips and gripper pads (Real trial); and the bit's sideways movement in the bore,
+  0.41 mm while cutting (How the file works). This task is a through-bore, mark to mark, not that hole deepened.
 
 ## Real trial: safety and reset
 
 - **People:** nobody in the cell while the bit can turn, and an operator at the robot's power cut-off all that
-  time (a score of 0 for spinning in the air does not stop a real bit). The bit breaks out into the open gap over
+  time (nothing in the score stops a real bit). The bit breaks out into the open gap over
   the hardboard scrap, and the clutch is set low, so a bound bit slips instead of twisting the arm.
 - **Gripper pads** touch only the rubber handle and the motor housing, 19 mm clear of the turning holder and more
   than 100 mm from the bit. Vacuum and wipe them after each trial; replace a worn pad.
